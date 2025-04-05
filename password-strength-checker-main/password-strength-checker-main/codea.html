@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Strength Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #3498db; /* Blue background */
+        }
+        .container {
+            background-color: #f7dc6f; /* Gold background */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        #passwordInput {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        #submitButton {
+            padding: 10px 20px;
+            background-color: #ffd700; /* Gold button */
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #submitButton:hover {
+            background-color: #ffd700; /* Keep gold on hover */
+            box-shadow: 0 0 10px #ffd700; /* Add gold shadow on hover */
+        }
+        #strengthResult {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .light {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 5px;
+        }
+        #suggestion {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 style="color: #ffd700;"><b>Check Your Password</b></h2> <!-- Gold text -->
+        <input type="password" id="passwordInput" placeholder="Enter your password">
+        <button id="submitButton">Submit</button>
+        <div id="strengthResult"></div>
+        <div id="lights">
+            <div class="light" id="light1"></div>
+            <div class="light" id="light2"></div>
+            <div class="light" id="light3"></div>
+            <div class="light" id="light4"></div>
+            <div class="light" id="light5"></div>
+        </div>
+        <div id="suggestion"></div>
+    </div>
+
+    <script>
+        document.getElementById('submitButton').addEventListener('click', function() {
+            let password = document.getElementById('passwordInput').value;
+            let strength = checkPasswordStrength(password);
+            let resultElement = document.getElementById('strengthResult');
+            let suggestionElement = document.getElementById('suggestion');
+
+            resultElement.textContent = "Strength: " + strength.strengthLevel;
+            resultElement.style.color = strength.color;
+
+            // Blink lights based on strength
+            let lights = document.querySelectorAll('.light');
+            lights.forEach(light => light.style.background = 'black');
+            if (strength.strengthLevel === "Weak") {
+                for (let i = 0; i < 1; i++) {
+                    blinkLight(lights[i], 'red');
+                }
+            } else if (strength.strengthLevel === "Least Weak") {
+                for (let i = 0; i < 2; i++) {
+                    blinkLight(lights[i], 'orange');
+                }
+            } else if (strength.strengthLevel === "Medium") {
+                for (let i = 0; i < 3; i++) {
+                    blinkLight(lights[i], 'darkgreen');
+                }
+            } else if (strength.strengthLevel === "Strong") {
+                for (let i = 0; i < 5; i++) {
+                    blinkLight(lights[i], 'lightgreen');
+                }
+            }
+
+            // Suggest a better password
+            suggestionElement.textContent = "Suggested Password: " + suggestBetterPassword(password);
+        });
+
+        function checkPasswordStrength(password) {
+            let strengthLevel = "";
+            let color = "";
+
+            if (password.length < 8) {
+                strengthLevel = "Weak";
+                color = "red";
+            } else if (password.length < 12) {
+                strengthLevel = "Least Weak";
+                color = "orange";
+            } else if (/[a-z]/.test(password) && /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^a-zA-Z0-9\s]/.test(password)) {
+                strengthLevel = "Strong";
+                color = "lightgreen";
+            } else {
+                strengthLevel = "Medium";
+                color = "darkgreen";
+            }
+
+            return { strengthLevel: strengthLevel, color: color };
+        }
+
+        function blinkLight(light, color) {
+            let intervalId = setInterval(() => {
+                light.style.background = light.style.background === color ? 'black' : color;
+            }, 500);
+            setTimeout(() => clearInterval(intervalId), 3000); // Stop blinking after 3 seconds
+        }
+
+        function suggestBetterPassword(password) {
+            let suggestedPassword = password;
+            if (password.length < 12) {
+                suggestedPassword += "123!@#";
+            }
+            if (!/[a-z]/.test(password)) {
+                suggestedPassword += "a";
+            }
+            if (!/[A-Z]/.test(password)) {
+                suggestedPassword += "A";
+            }
+            if (!/[0-9]/.test(password)) {
+                suggestedPassword += "1";
+            }
+            if (!/[^a-zA-Z0-9\s]/.test(password)) {
+                suggestedPassword += "!";
+            }
+            return suggestedPassword;
+        }
+    </script>
+</body>
+</html>
